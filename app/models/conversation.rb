@@ -91,23 +91,19 @@ class Conversation < ApplicationRecord
   delegate :auto_resolve_duration, to: :account
 
   def can_reply?
-    return last_message_less_than_24_hrs? if additional_attributes['type'] == 'instagram_direct_message'
-
-    return true unless inbox&.channel&.has_24_hour_messaging_window?
-
     return false if last_incoming_message.nil?
 
-    last_message_less_than_24_hrs?
+    last_message_less_than_7_days?
   end
 
   def last_incoming_message
     messages&.incoming&.last
   end
 
-  def last_message_less_than_24_hrs?
+  def last_message_less_than_7_days?
     return false if last_incoming_message.nil?
 
-    Time.current < last_incoming_message.created_at + 24.hours
+    Time.current < last_incoming_message.created_at + 7.days
   end
 
   def update_assignee(agent = nil)
